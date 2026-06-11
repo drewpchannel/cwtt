@@ -35,3 +35,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     // Return true to keep channel open if doing async work inside here
     return true; 
 });
+
+setInterval(() => {
+	var cwButtons = document.getElementsByClassName('GMDB3DUBORG');
+    for ( i in cwButtons ) { 
+    	if (cwButtons[i].innerText === "SEARCH") 
+    		{ 
+    			cwButtons[i].click() 
+    		} 
+    };
+}, 120000);

@@ -19,8 +19,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 { data: 'scan' },
                 { frameId: 0 }
             );
-            
-            trackTicketsDirectly(response);
+            console.log(response.tickets);
+            trackTicketsDirectly(response.tickets);
 
         } catch (error) {
             // Catches cases where the content script hasn't loaded or page is wrong
@@ -77,8 +77,13 @@ function trackTicketsDirectly(newTicketArrays) {
 }
 
 function playAlertSound() {
-  const audio = new Audio(chrome.runtime.getURL("alert.mp3"));
-  audio.play().catch(error => {
-    console.error("Audio playback failed:", error);
-  });
+  const soundUrl = "https://github.com/drewpchannel/cwtt/raw/refs/heads/main/alert.mp3";
+  const audio = new Audio(soundUrl);
+  
+  audio.play()
+    .then(() => console.log("🔊 Alert sound played successfully."))
+    .catch(error => {
+      console.warn("🔊 Audio blocked or failed:", error.message);
+      console.log("Tip: Chrome requires you to click inside the extension popup once before it allows audio to play.");
+    });
 }
