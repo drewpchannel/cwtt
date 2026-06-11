@@ -1,0 +1,24 @@
+{
+    "manifest_version": 3,
+    "name": "CW ticket tracker",
+    "description": "Sends out an email for new tickets",
+    "version": "1.0",
+    "action": {
+        "default_icon": "favicon.png",
+        "default_popup": "popup.html"
+    },
+    "content_scripts": [{
+        "matches": [
+            "https://*.myconnectwise.net/*",
+            "https://*.connectwise.com/*",
+            "https://*.itboost.com/*"
+        ],
+        "all_frames": true,
+        "js": ["scripts/content.js"]
+    }],
+    "permissions": [
+        "activeTab",
+        "storage",
+        "tabs"
+    ]
+}
