@@ -37,6 +37,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 
 setInterval(() => {
+	if(true) {return;}
 	var cwButtons = document.getElementsByClassName('GMDB3DUBORG');
     for ( i in cwButtons ) { 
     	if (cwButtons[i].innerText === "SEARCH") 
@@ -44,4 +45,4 @@ setInterval(() => {
     			cwButtons[i].click() 
     		} 
     };
-}, 120000);
+}, 10000);

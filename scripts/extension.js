@@ -3,30 +3,12 @@ console.log('ext load');
 document.addEventListener('DOMContentLoaded', () => {
     const button = document.getElementById('gettickets');
     
-    button.addEventListener('click', async () => {
-        try {
-            // Use modern async/await instead of callbacks
-            const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
-            
-            if (!tabs || tabs.length === 0) {
-                console.error("No active tab found.");
-                return;
-            }
-
-            // Send message and await the response directly
-            const response = await chrome.tabs.sendMessage(
-                tabs[0].id, 
-                { data: 'scan' },
-                { frameId: 0 }
-            );
-            console.log(response.tickets);
-            trackTicketsDirectly(response.tickets);
-
-        } catch (error) {
-            // Catches cases where the content script hasn't loaded or page is wrong
-            console.error("Messaging failed:", error.message);
-        }
+    button.addEventListener('click', () => {
+        runScan();
     });
+
+    const pauseButton = document.getElementById('pausebutton');
+
 });
 
 function trackTicketsDirectly(newTicketArrays) {
@@ -48,6 +30,7 @@ function trackTicketsDirectly(newTicketArrays) {
         savedTickets.push(newTicket);
         changeDetected = true;
         playAlertSound();
+        sendEmail(newTicket);
       } else {
         // Ticket exists. Compare indices 4 (Status) and 12 (Last Updated)
         const savedTicket = savedTickets[existingTicketIndex];
@@ -86,4 +69,54 @@ function playAlertSound() {
       console.warn("🔊 Audio blocked or failed:", error.message);
       console.log("Tip: Chrome requires you to click inside the extension popup once before it allows audio to play.");
     });
+}
+async function runScan() {
+    try {
+        // Use modern async/await instead of callbacks
+        const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+        
+        if (!tabs || tabs.length === 0) {
+            console.error("No active tab found.");
+            return;
+        }
+
+        // Send message and await the response directly
+        const response = await chrome.tabs.sendMessage(
+            tabs[0].id, 
+            { data: 'scan' },
+            { frameId: 0 }
+        );
+        console.log(response.tickets);
+        trackTicketsDirectly(response.tickets);
+
+    } catch (error) {
+        // Catches cases where the content script hasn't loaded or page is wrong
+        console.error("Messaging failed:", error.message);
+    }
+}
+
+setInterval(() => {
+    runScan();
+}, 20000);
+
+function sendEmail(ticket) {
+    console.log('sending email');
+    console.log(ticket);
+  fetch('https://api.emailjs.com/api/v1.0/email/send', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      service_id: 'service_78b99y7',
+      template_id: 'template_rfooptc',
+      user_id: 'Q1xgtsKd3uTd_X0jB',
+      template_params: {
+        number: ticket[1],
+        updated: ticket[12]
+      }
+    })
+  })
+  .then(res => console.log("📧 Email sent"))
+  .catch(err => console.error("Email error:", err));
 }
