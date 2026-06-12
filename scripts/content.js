@@ -1,48 +1,75 @@
-console.log("Content script loaded on ITBoost");
+console.log("Content script loaded on ITBoost/ConnectWise");
 
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    if (message.data === 'scan') {
-    	var ticketList = document.getElementById('srboard-listview-scroller').querySelectorAll("table")[0].querySelectorAll("tbody")[1].querySelectorAll("tr");
-    	var ticketDataArray = [];
+function runScan() {
+    const cwButtons = document.getElementsByClassName('GMDB3DUBORG');
 
-    	for (const ticket of ticketList) {
-    	    if (ticket.querySelectorAll) {
-    	        const ticketUnsortedArray = ticket.querySelectorAll('td');
-    	        
-    	        var rowData = [];
-    	        
-    	        for (const td of ticketUnsortedArray) {
-    	            const anchorElement = td.querySelector('div > a');
-    	            const spanElement = td.querySelector('div > span');
-    	            
-    	            if (anchorElement) {
-    	                rowData.push(anchorElement.innerText.trim());
-    	            } else if (spanElement) {
-    	                rowData.push(spanElement.innerText.trim());
-    	            } else {
-    	                // Fallback: Grab raw text if there is no <a> or <span> so columns stay aligned
-    	                rowData.push(td.innerText.trim());
-    	            }
-    	        }
-    	        
-    	        ticketDataArray.push(rowData);
-    	    }
-    	}
-    	console.log(ticketDataArray);
-        sendResponse({ success: true, tickets: ticketDataArray });
-    }
-    
-    // Return true to keep channel open if doing async work inside here
-    return true; 
-});
-
-setInterval(() => {
-	if(true) {return;}
-	var cwButtons = document.getElementsByClassName('GMDB3DUBORG');
     for ( i in cwButtons ) { 
-    	if (cwButtons[i].innerText === "SEARCH") 
-    		{ 
-    			cwButtons[i].click() 
-    		} 
+        if (true) {} else {
+          if (cwButtons[i].innerText === "SEARCH") 
+              { 
+                  cwButtons[i].click() 
+              }   
+        }
+
     };
-}, 10000);
+
+    const scroller = document.getElementById('srboard-listview-scroller');
+    if (!scroller) return;
+
+    // Use querySelectorAll to find tables inside the scroller safely
+    const tables = scroller.querySelectorAll("table");
+    if (tables.length === 0) return;
+
+    const ticketNumbers = [];
+
+    // Loop through every table found inside the scroller view
+    tables.forEach((table) => {
+        const tbodies = table.querySelectorAll("tbody");
+        
+        tbodies.forEach((tbody) => {
+            const rows = tbody.querySelectorAll("tr");
+            
+            // Loop through EVERY row inside this specific tbody
+            rows.forEach((row) => {
+                const cells = row.querySelectorAll('td');
+                
+                // Verify the row actually has table cells and index 1 exists
+                if (cells && cells.length > 1) {
+                    const ticketCell = cells[1]; // Grab the second column cell directly
+                    const anchorElement = ticketCell.querySelector('div > a');
+                    const spanElement = ticketCell.querySelector('div > span');
+                    
+                    let ticketId = "";
+                    if (anchorElement) {
+                        ticketId = anchorElement.innerText.trim();
+                    } else if (spanElement) {
+                        ticketId = spanElement.innerText.trim();
+                    } else {
+                        ticketId = ticketCell.innerText.trim();
+                    }
+
+                    // Clean out any blank strings or header text rows
+                    if (ticketId && !isNaN(ticketId)) {
+                        ticketNumbers.push(ticketId);
+                    }
+                }
+            });
+        });
+    });
+
+    // Debugging verification log: See the complete flat list of found numbers
+    console.log("Scraped Ticket Numbers List:", ticketNumbers);
+
+    // Send the full collection array to background.js
+    if (ticketNumbers.length > 0) {
+        try {
+            chrome.runtime.sendMessage({ action: 'ticketsScraped', tickets: ticketNumbers });
+        } catch (error) {
+            console.log("Extension context sync error. Please refresh the page.");
+        }
+    }
+}
+
+// Run scan automatically every 20 seconds
+setInterval(runScan, 10000);
+setTimeout(runScan, 5000);
