@@ -6,7 +6,7 @@ function playAlertSound() {
   const soundUrl = "https://github.com/drewpchannel/cwtt/raw/refs/heads/main/alert.mp3";
   // Background workers don't support "new Audio()". 
   // To avoid errors, we log it here. You can implement an offscreen document if sound is mandatory.
-  console.log("🔊 Ticket trigger event occurred (Sound would play here).");
+  console.log("Ticket trigger event occurred (Sound would play here).");
 }
 
 function trackTicketsDirectly(newTicketArrays) {
@@ -23,10 +23,10 @@ function trackTicketsDirectly(newTicketArrays) {
       const existingTicketIndex = savedTickets.findIndex(savedTicket => savedTicket[1] === newId);
 
       if (existingTicketIndex === -1) {
-        console.log(`✨ New Ticket Added: ${newId}`);
+        console.log(`New Ticket Added: ${newId}`);
         savedTickets.push(newTicket);
         changeDetected = true;
-        playAlertSound();
+        //playAlertSound();
         sendEmail(newTicket);
       } else {
         const savedTicket = savedTickets[existingTicketIndex];
@@ -36,7 +36,7 @@ function trackTicketsDirectly(newTicketArrays) {
         const timeChanged = savedTicket[12] !== newTicket[12];
 
         if (statusChanged || timeChanged) {
-          console.log(`⚠️ Change on Ticket ${newId}!`);
+          console.log(`Change on Ticket ${newId}!`);
           savedTickets[existingTicketIndex] = newTicket;
           changeDetected = true;
           // Optional: Send another email if status changes
@@ -47,7 +47,7 @@ function trackTicketsDirectly(newTicketArrays) {
 
     if (changeDetected) {
       chrome.storage.local.set({ savedTicketsArray: savedTickets }, () => {
-        console.log("💾 Storage updated with changes.");
+        console.log("Storage updated with changes.");
       });
     }
   });
@@ -71,7 +71,7 @@ function sendEmail(ticket) {
       }
     })
   })
-  .then(res => console.log("📧 Email sent successfully"))
+  .then(res => console.log("Email sent successfully"))
   .catch(err => console.error("Email error:", err));
 }
 

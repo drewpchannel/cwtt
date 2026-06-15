@@ -17,9 +17,9 @@ function trackTicketsDirectly(incomingTicketNumbers) {
     // FLOOD PROTECTION: If savedTickets is completely empty, this is the very first scan.
     // We populate the baseline storage without sending any emails.
     if (savedTickets.length === 0) {
-        console.log("🚀 Initial baseline setup: Saving current tickets silently. No emails sent.");
+        console.log("Initial baseline setup: Saving current tickets silently. No emails sent.");
         chrome.storage.local.set({ savedTicketsArray: incomingTicketNumbers }, () => {
-            console.log(`💾 Baseline established with ${incomingTicketNumbers.length} tickets.`);
+            console.log(`Baseline established with ${incomingTicketNumbers.length} tickets.`);
         });
         return; // Exit early so no emails are triggered [1]
     }
@@ -27,7 +27,7 @@ function trackTicketsDirectly(incomingTicketNumbers) {
     // Standard loop for all future scans
     incomingTicketNumbers.forEach(ticketNum => {
       if (!savedTickets.includes(ticketNum)) {
-        console.log(`✨ New Ticket Number Detected: ${ticketNum}`);
+        console.log(`New Ticket Number Detected: ${ticketNum}`);
         savedTickets.push(ticketNum);
         changeDetected = true;
         sendEmail(ticketNum); // This only fires for tickets arriving AFTER the baseline
@@ -62,10 +62,10 @@ function sendEmail(ticketNumber) {
             const errorText = await response.text();
             throw new Error(`API returned status ${response.status}: ${errorText}`);
         }
-        console.log(`📧 Email sent successfully for ticket #${ticketNumber}`);
+        console.log(`Email sent successfully for ticket #${ticketNumber}`);
     })
     .catch(err => {
         // True server configuration errors will now land here
-        console.error("❌ EmailJS API Delivery Failure:", err.message);
+        console.error("EmailJS API Delivery Failure:", err.message);
     });
 }

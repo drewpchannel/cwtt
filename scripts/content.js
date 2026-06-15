@@ -4,12 +4,11 @@ function runScan() {
     const cwButtons = document.getElementsByClassName('GMDB3DUBORG');
 
     for ( i in cwButtons ) { 
-          if (cwButtons[i].innerText === "SEARCH") 
-              { 
-                  cwButtons[i].click() 
-              }   
-        }
-    };
+      if (cwButtons[i].innerText === "SEARCH") 
+          { 
+              cwButtons[i].click() 
+          }   
+    }
 
     const scroller = document.getElementById('srboard-listview-scroller');
     if (!scroller) return;
