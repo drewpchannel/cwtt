@@ -68,5 +68,4 @@ function runScan() {
 }
 
 // Run scan automatically every 20 seconds
-setInterval(runScan, 10000);
-setTimeout(runScan, 5000);
+setInterval(runScan, 25000);
